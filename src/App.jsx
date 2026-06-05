@@ -288,17 +288,17 @@ const getBalance = async (address) => {
 // KATEGORI → VISUAL MAPPING
 // ==========================================
 const CATEGORY_VISUALS = {
-  "Environment":    { emoji: "🌱", bg: "from-green-900 to-green-700", catColor: "text-green-600", orgColor: "bg-green-600", tags: ["✓ Verified", "🌿 Environment"], tagStyles: ["bg-green-100 text-green-800", "bg-green-50 text-green-700"] },
-  "Health":         { emoji: "🏥", bg: "from-blue-900 to-blue-700", catColor: "text-blue-600", orgColor: "bg-blue-600", tags: ["✓ Verified", "🏥 Health"], tagStyles: ["bg-blue-100 text-blue-800", "bg-blue-50 text-blue-700"] },
-  "Education":      { emoji: "📚", bg: "from-purple-900 to-purple-700", catColor: "text-purple-600", orgColor: "bg-purple-600", tags: ["✓ Verified", "📚 Education"], tagStyles: ["bg-purple-100 text-purple-800", "bg-purple-50 text-purple-700"] },
-  "Disaster Relief":{ emoji: "🆘", bg: "from-red-900 to-red-700",     catColor: "text-red-600",   orgColor: "bg-red-600",   tags: ["✓ Verified", "🆘 Relief", "⚡ Urgent"], tagStyles: ["bg-red-100 text-red-800", "bg-red-50 text-red-700", "bg-amber-50 text-amber-800"] },
-  "Human Rights":   { emoji: "✊", bg: "from-amber-900 to-amber-700",  catColor: "text-amber-600", orgColor: "bg-amber-600", tags: ["✓ Verified", "✊ Rights"],     tagStyles: ["bg-amber-100 text-amber-800", "bg-amber-50 text-amber-700"] },
+  "Environment":    { image: "/environment.png", emoji: "🌱", bg: "from-green-900 to-green-700", catColor: "text-green-600", orgColor: "bg-green-600", tags: ["✓ Verified", "🌿 Environment"], tagStyles: ["bg-green-100 text-green-800", "bg-green-50 text-green-700"] },
+  "Health":         { image: "/health.png", emoji: "🏥", bg: "from-blue-900 to-blue-700", catColor: "text-blue-600", orgColor: "bg-blue-600", tags: ["✓ Verified", "🏥 Health"], tagStyles: ["bg-blue-100 text-blue-800", "bg-blue-50 text-blue-700"] },
+  "Education":      { image: "/education.png", emoji: "📚", bg: "from-purple-900 to-purple-700", catColor: "text-purple-600", orgColor: "bg-purple-600", tags: ["✓ Verified", "📚 Education"], tagStyles: ["bg-purple-100 text-purple-800", "bg-purple-50 text-purple-700"] },
+  "Disaster Relief":{ image: "/disaster_relief.png", emoji: "🆘", bg: "from-red-900 to-red-700",     catColor: "text-red-600",   orgColor: "bg-red-600",   tags: ["✓ Verified", "🆘 Relief", "⚡ Urgent"], tagStyles: ["bg-red-100 text-red-800", "bg-red-50 text-red-700", "bg-amber-50 text-amber-800"] },
+  "Human Rights":   { image: "/human_rights.png", emoji: "✊", bg: "from-amber-900 to-amber-700",  catColor: "text-amber-600", orgColor: "bg-amber-600", tags: ["✓ Verified", "✊ Rights"],     tagStyles: ["bg-amber-100 text-amber-800", "bg-amber-50 text-amber-700"] },
 };
 
 const categoryVisuals = (cat) => CATEGORY_VISUALS[cat] || {
-  emoji: "🌍", bg: "from-slate-800 to-slate-600", catColor: "text-slate-600", orgColor: "bg-slate-600",
-  tags: ["✓ Verified"], tagStyles: ["bg-slate-100 text-slate-800"],
-  org: "CareFund DAO", orgAbbr: "CF",
+  image: "/images/default.jpg",
+  emoji: "🌍", bg: "from-slate-800 to-slate-600", catColor: "text-slate-600", orgColor: "bg-slate-600", 
+  tags: ["✓ Verified"], tagStyles: ["bg-slate-100 text-slate-800"] 
 };
 
 // ==========================================
@@ -427,7 +427,11 @@ function CampaignCard({ campaign, onClick }) {
       onClick={() => onClick(campaign)}
     >
       <div className={`h-44 flex items-center justify-center relative bg-gradient-to-br ${campaign.bg}`}>
-        <span className="text-5xl">{campaign.emoji}</span>
+        <img
+          src={campaign.image || "/images/default.jpg"}
+          alt={campaign.title}
+          className="absolute inset-0 w-full h-full object-cover opacity-90 transition-opacity"
+        />
         <span className={`absolute top-3 right-3 bg-white text-xs font-bold px-3 py-1 rounded-full ${campaign.catColor}`}>{campaign.cat}</span>
         {!campaign.active && (
           <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[0.65rem] font-bold px-2 py-0.5 rounded-full">ENDED</span>
@@ -611,10 +615,10 @@ function HomePage({ navigate, campaigns, globalStats, blockNumber }) {
             {/* BAGIAN ATAS CARD: Gambar Latar Belakang dari public/gambar.png */}
             <div className="h-48 w-full relative bg-slate-100 overflow-hidden">
               <img 
-                src="/gambar.png" 
-  alt="Campaign Background" 
-  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-/>
+                src={c.image || "/images/default.jpg"} 
+                alt={c.title} 
+                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-blue-600 text-xs font-bold px-4 py-1.5 rounded-full shadow-sm">
                 {c.category || "Health"}
@@ -745,11 +749,16 @@ function HomePage({ navigate, campaigns, globalStats, blockNumber }) {
   );
 }
 
-function BrowsePage({ navigate, campaigns, loading }) {
+function BrowsePage({ navigate, campaigns, loading, initialSearch = "" }) {
   const [activeSort, setActiveSort] = useState("Popular");
   const [activeCategories, setActiveCategories] = useState({});
   const sortIcons = { Popular: "↗", Newest: "🕐", "Near Goal": "🏁" };
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
+
+  // Sync search state ketika initialSearch berubah (dari navbar search)
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
 
   const filteredCats = Object.entries(activeCategories).filter(([,v]) => v).map(([k]) => k);
 
@@ -912,7 +921,7 @@ function DetailPage({ campaign: initialCampaign, navigate, wallet, onToast }) {
     }
   };
 
-  const etherscanBase = "https://sepolia.etherscan.io"; // ganti jika mainnet
+  const etherscanBase = "https://sepolia.etherscan.io";
 
   return (
     <div>
@@ -1680,6 +1689,7 @@ function AppInner() {
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
   const [blockNumber, setBlockNumber] = useState(null);
   const [metamaskDetected, setMetamaskDetected] = useState(false);
+  const [navbarSearchInput, setNavbarSearchInput] = useState("");
 
   const navigate = (target, data = null) => {
     setPage(target);
@@ -1891,9 +1901,21 @@ function AppInner() {
     
     {/* BAGIAN KANAN: SEARCH & WALLET */}
     <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 text-xs text-slate-400 hover:border-teal-300 cursor-pointer transition-colors">
-        🔍 Search campaigns…
-      </div>
+      <input 
+        type="text"
+        value={navbarSearchInput}
+        onFocus={(e) => e.target.placeholder = "Type and press Enter..."}
+        onBlur={(e) => e.target.placeholder = "🔍 Search campaigns…"}
+        onChange={(e) => setNavbarSearchInput(e.target.value)}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
+            navigate("browse", { searchQuery: navbarSearchInput });
+            setNavbarSearchInput("");
+          }
+        }}
+        placeholder="🔍 Search campaigns…" 
+        className="bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 text-xs text-slate-600 placeholder-slate-400 hover:border-teal-300 focus:outline-none focus:border-teal-400 transition-colors w-48"
+      />
       
       <button 
         onClick={() => setWalletModal(true)} 
@@ -1912,7 +1934,7 @@ function AppInner() {
       {/* PAGES */}
       <div>
         {page === "home"      && <HomePage      navigate={navigate} campaigns={campaigns} globalStats={globalStats} blockNumber={blockNumber} />}
-        {page === "browse"    && <BrowsePage    navigate={navigate} campaigns={campaigns} loading={loadingCampaigns} />}
+        {page === "browse"    && <BrowsePage    navigate={navigate} campaigns={campaigns} loading={loadingCampaigns} initialSearch={pageData?.searchQuery || ""} />}
         {page === "detail"    && pageData       && <DetailPage campaign={pageData} navigate={navigate} wallet={wallet} onToast={showToast} />}
         {page === "create"    && <CreatePage    navigate={navigate} wallet={wallet} onToast={showToast} />}
         {page === "dashboard" && <DashboardPage navigate={navigate} wallet={wallet}  onToast={showToast} />}
