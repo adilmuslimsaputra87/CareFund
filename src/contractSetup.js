@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x99ef2d082432670407d838e6A64f3A7C358444Ff";
+export const CONTRACT_ADDRESS = "0x3138c622618e671A01A13268628297d2022Ab4fB";
 
 // ABI flattened to a single array. Keep this file updated to match your deployed
 // smart contract. For local dev, an empty/partial ABI will make calls to missing
